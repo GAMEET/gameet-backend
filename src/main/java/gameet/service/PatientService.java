@@ -1,13 +1,18 @@
 package gameet.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -17,7 +22,7 @@ import gameet.entity.Patient;
 @Service
 public class PatientService {
 
-    public static final String COL_NAME="users";
+    public static final String COL_NAME="Patient";
 
     public String savePatientDetails(Patient patient) throws InterruptedException, ExecutionException {
         Firestore dbFirestore = FirestoreClient.getFirestore();
@@ -53,5 +58,24 @@ public class PatientService {
         ApiFuture<WriteResult> writeResult = dbFirestore.collection(COL_NAME).document(name).delete();
         return "Document with Patient ID "+name+" has been deleted";
     }
+
+		public List<Patient> getAll() throws InterruptedException, ExecutionException {
+		    Firestore dbFirestore = FirestoreClient.getFirestore();
+		    CollectionReference collectionReference = dbFirestore.collection(COL_NAME);
+		    
+		    ApiFuture<QuerySnapshot> future = collectionReference.get();
+		    QuerySnapshot querySnapshot = future.get();
+		    
+		    List<Patient> patients = new ArrayList<>();
+		    
+		    for (QueryDocumentSnapshot document : querySnapshot) {
+		        if (document.exists()) {
+		            Patient patient = document.toObject(Patient.class);
+		            patients.add(patient);
+		        }
+		    }
+		    
+		    return patients;
+		}
 
 }

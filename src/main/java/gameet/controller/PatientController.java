@@ -1,5 +1,6 @@
 package gameet.controller;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,11 @@ public class PatientController {
         return patientService.getPatientDetails(name);
     }
 
+    @GetMapping("/getAll")
+    public List<Patient> getAll() throws InterruptedException, ExecutionException{
+        return patientService.getAll();
+    }
+    
     @PostMapping("/createPatient")
     public String createPatient(@RequestBody Patient patient ) throws InterruptedException, ExecutionException {
         return patientService.savePatientDetails(patient);

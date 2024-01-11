@@ -10,9 +10,13 @@ public class Patient {
 
 
     public Patient(String name, int age, String city) {
-    }
+		super();
+		this.name = name;
+		this.age = age;
+		this.city = city;
+	}
 
-    public String getName() {
+	public String getName() {
         return name;
     }
 
