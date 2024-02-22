@@ -8,7 +8,9 @@ public class Patient {
 
     private String city;
 
-
+    public Patient() {
+	}
+    
     public Patient(String name, int age, String city) {
 		super();
 		this.name = name;
