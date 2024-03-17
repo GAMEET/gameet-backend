@@ -150,4 +150,14 @@ public class UsuarioService {
 
         return null; // Si no se encuentra ningún usuario con el horario de juego dado
     }
+    
+    public void guardarUsuario(Usuario usuario) throws InterruptedException, ExecutionException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference docRef = dbFirestore.collection(COL_NAME).document(usuario.getUsername().toString());
+        docRef.set(usuario);
+        docRef.create(usuario);
+        
+    }
+
+
 }

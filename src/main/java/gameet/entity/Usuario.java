@@ -1,6 +1,8 @@
 package gameet.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -8,8 +10,7 @@ import jakarta.persistence.Table;
 @Table(name = "usuarios")
 public class Usuario {
 
-	@Id
-	private Long id;
+
 	private String descripcion;
 	private String email;
 	private String imagenPerfil;
@@ -19,19 +20,16 @@ public class Usuario {
 	private Caracteristicas caracteristicas;
 	private String horarioJuego;
 	
-	public Usuario(Long id, String descripcion, String email, String imagenPerfil, String password, Integer telefono,
-			String username, Caracteristicas caracteristicas, String horarioJuego) {
-		super();
-		this.setId(id);
-		this.descripcion = descripcion;
-		this.email = email;
-		this.imagenPerfil = imagenPerfil;
-		this.password = password;
-		this.telefono = telefono;
-		this.username = username;
-		this.caracteristicas = caracteristicas;
-		this.horarioJuego = horarioJuego;
-	}
+	 public Usuario(String descripcion2, String email2, String imagenPerfil2, String password2, Integer telefono2, String username2, Caracteristicas caracteristicas2, String horarioJuego2) {
+			this.descripcion = descripcion2;
+			this.email = email2;
+			this.imagenPerfil = imagenPerfil2;
+			this.password = password2;
+			this.telefono = telefono2;
+			this.username = username2;
+			this.caracteristicas = caracteristicas2;
+			this.horarioJuego = horarioJuego2;
+	    }
 	
 	public String getDescripcion() {
 		return descripcion;
@@ -80,11 +78,5 @@ public class Usuario {
 	}
 	public void setHorarioJuego(String horarioJuego) {
 		this.horarioJuego = horarioJuego;
-	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
 	}
 }
