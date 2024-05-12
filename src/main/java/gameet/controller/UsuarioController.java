@@ -1,10 +1,14 @@
 package gameet.controller;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,12 +27,6 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
-
-    @GetMapping("/getUsuarioById")
-    public Usuario getUsuarioById(@RequestParam Long id) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioById(id);
-    }
-
     @GetMapping("/getUsuarioByDescripcion")
     public Usuario getDescripcion(@RequestParam String descripcion) throws InterruptedException, ExecutionException {
         return usuarioService.getUsuarioByDescripcion(descripcion);
@@ -109,6 +107,7 @@ public class UsuarioController {
             return "Password incorrecto";
         }
 
+        //Verificamos que el username es unico
         if (!esUsernameUnico(username)) {
             return "Username repetido";
         }
@@ -146,5 +145,35 @@ public class UsuarioController {
     private boolean isValidEmail(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         return email.matches(regex);
+    }
+    
+    @GetMapping("/listaUsuarios")
+    public ResponseEntity<List<Usuario>> listaUsuarios(@RequestParam(required = true) String username) {
+        try {
+            List<Usuario> usuarios = usuarioService.getAllUsersExcept(username);
+            return ResponseEntity.ok().body(usuarios);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/usuario")
+    public ResponseEntity<?> getUsuarioPorUsername(@RequestParam (required = true)String username) {
+        Usuario usuario = null;
+		try {
+			usuario = usuarioService.getUsuarioByUsername(username);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
+        } else {
+            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body("Usuario no encontrado");
+        }
     }
 }

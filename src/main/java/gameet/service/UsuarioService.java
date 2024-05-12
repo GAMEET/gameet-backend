@@ -1,5 +1,7 @@
 package gameet.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
@@ -159,5 +161,24 @@ public class UsuarioService {
         
     }
 
+    // Método para obtener todos los usuarios excepto uno
+    public List<Usuario> getAllUsersExcept(String excludedUsername) throws InterruptedException, ExecutionException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).get();
+        QuerySnapshot querySnapshot = query.get();
+
+        List<Usuario> allUsers = new ArrayList<>();
+
+        for (QueryDocumentSnapshot document : querySnapshot) {
+            if (document.exists()) {
+                Usuario usuario = document.toObject(Usuario.class);
+                if (excludedUsername == null || !usuario.getUsername().equals(excludedUsername)) {
+                    allUsers.add(usuario);
+                }
+            }
+        }
+
+        return allUsers;
+    }
 
 }

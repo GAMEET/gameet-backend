@@ -1,6 +1,7 @@
 package gameet.entity;
 
-public class Consolas {
+public enum Consolas {
 
-    private String name;
+    XBOX_ONE, PLAYSTATION_4, NINTENDO_SWITCH, XBOX_360, PLAYSTATION_3, PLAYSTATION_5, XBOX_SERIES_X, PC, NINTENDO_WII_U,
+    NINTENDO_DS, NINTENDO_3DS,XBOX_SERIES_S, PLAYSTATION_VITA, PLAYSTATION_PORTABLE_PSP
 }

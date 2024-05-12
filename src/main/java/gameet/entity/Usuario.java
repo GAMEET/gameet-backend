@@ -1,9 +1,6 @@
 package gameet.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
@@ -30,6 +27,9 @@ public class Usuario {
 			this.caracteristicas = caracteristicas2;
 			this.horarioJuego = horarioJuego2;
 	    }
+	 public Usuario() {
+		
+	 }
 	
 	public String getDescripcion() {
 		return descripcion;
