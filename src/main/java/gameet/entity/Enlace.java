@@ -2,6 +2,11 @@ package gameet.entity;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "enlace")
 public class Enlace {
 
 	private LocalDate fechaEnlace;

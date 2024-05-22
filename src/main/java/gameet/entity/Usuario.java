@@ -1,5 +1,8 @@
 package gameet.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -7,28 +10,38 @@ import jakarta.persistence.Table;
 @Table(name = "usuarios")
 public class Usuario {
 
-
 	private String descripcion;
 	private String email;
 	private String imagenPerfil;
 	private String password;
 	private Integer telefono;
 	private String username;
-	private Caracteristicas caracteristicas;
+	private List<String> caracteristicas;
 	private String horarioJuego;
-	
-	 public Usuario(String descripcion2, String email2, String imagenPerfil2, String password2, Integer telefono2, String username2, Caracteristicas caracteristicas2, String horarioJuego2) {
-			this.descripcion = descripcion2;
-			this.email = email2;
-			this.imagenPerfil = imagenPerfil2;
-			this.password = password2;
-			this.telefono = telefono2;
-			this.username = username2;
-			this.caracteristicas = caracteristicas2;
-			this.horarioJuego = horarioJuego2;
-	    }
-	 public Usuario() {
-		
+	private boolean activo;
+	private List<String> juegos;
+    private List<String> rechazados;   
+
+	 public Usuario(String descripcion, String email, String imagenPerfil, String password, Integer telefono,
+			String username, List<String> caracteristicas, String horarioJuego, boolean activo,
+			List<String> juegos, List<String> rechazados) {
+		super();
+		this.descripcion = descripcion;
+		this.email = email;
+		this.imagenPerfil = imagenPerfil;
+		this.password = password;
+		this.telefono = telefono;
+		this.username = username;
+		this.caracteristicas = caracteristicas;
+		this.horarioJuego = horarioJuego;
+		this.activo = activo;
+		this.juegos = juegos;
+		this.rechazados = rechazados;
+	}
+
+	public Usuario() {
+        this.rechazados = new ArrayList<>();
+
 	 }
 	
 	public String getDescripcion() {
@@ -67,16 +80,41 @@ public class Usuario {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public Caracteristicas getCaracteristicas() {
-		return caracteristicas;
-	}
-	public void setCaracteristicas(Caracteristicas caracteristicas) {
-		this.caracteristicas = caracteristicas;
-	}
 	public String getHorarioJuego() {
 		return horarioJuego;
 	}
 	public void setHorarioJuego(String horarioJuego) {
 		this.horarioJuego = horarioJuego;
 	}
+	public boolean isActivo() {
+		return activo;
+	}
+	public void setActivo(boolean activo) {
+		this.activo = activo;
+	}
+	public List<String> getCaracteristicas() {
+		return caracteristicas;
+	}
+	public void setCaracteristicas(List<String> caracteristicas) {
+		this.caracteristicas = caracteristicas;
+	}
+	public List<String> getJuegos() {
+		return juegos;
+	}
+	public void setJuegos(List<String> juegos) {
+		this.juegos = juegos;
+	}
+	public List<String> getRechazados() {
+		return rechazados;
+	}
+	public void setRechazados(List<String> rechazados) {
+		this.rechazados = rechazados;
+	}
+	
+    public void rechazarUsuario(String usuario) {
+        if (!rechazados.contains(usuario)) {
+            rechazados.add(usuario);
+        }
+    }
+	
 }

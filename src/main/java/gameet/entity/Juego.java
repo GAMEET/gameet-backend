@@ -4,16 +4,16 @@ import java.util.List;
 
 public class Juego {
 
-	private Genero genero;
+	private String genero;
 	private String imagenPortada;
-	private List<Consolas> consola;
+	private List<String> consola;
 	private String titulo;
 	
 	public Juego() {
 		super();
 	}
 	
-	public Juego(Genero genero, String imagenPortada, List<Consolas> consola, String titulo) {
+	public Juego(String genero, String imagenPortada, List<String> consola, String titulo) {
 		super();
 		this.genero = genero;
 		this.imagenPortada = imagenPortada;
@@ -27,10 +27,10 @@ public class Juego {
 				+ titulo + "]";
 	}
 	
-	public Genero getGenero() {
+	public String getGenero() {
 		return genero;
 	}
-	public void setGenero(Genero genero) {
+	public void setGenero(String genero) {
 		this.genero = genero;
 	}
 	public String getImagenPortada() {
@@ -39,10 +39,10 @@ public class Juego {
 	public void setImagenPortada(String imagenPortada) {
 		this.imagenPortada = imagenPortada;
 	}
-	public List<Consolas> getConsola() {
+	public List<String> getConsola() {
 		return consola;
 	}
-	public void setConsola(List<Consolas> consola) {
+	public void setConsola(List<String> consola) {
 		this.consola = consola;
 	}
 	public String getTitulo() {

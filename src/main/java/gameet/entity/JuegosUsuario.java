@@ -1,25 +1,33 @@
 package gameet.entity;
 
-public class JuegosUsuario {
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "juegosUsuario")
+public class JuegosUsuario {
+	
+	private String id;
+	
+	private String usuario;
+    
 	private Integer nivel;
-	private Consolas consola;
-	private Juego juego;
+	
+	private String consola;
+    
+	private String juego;
 	
 	public JuegosUsuario() {
 		super();
 	}
 
-	public JuegosUsuario(Integer nivel, Consolas consola, Juego juego) {
+	public JuegosUsuario(String usuario, Integer nivel, String consola, String juego) {
 		super();
+		this.usuario = usuario;
 		this.nivel = nivel;
 		this.consola = consola;
 		this.juego = juego;
-	}
-
-	@Override
-	public String toString() {
-		return "JuegosUsuario [nivel=" + nivel + ", consola=" + consola + ", juego=" + juego + "]";
 	}
 
 	public Integer getNivel() {
@@ -30,20 +38,29 @@ public class JuegosUsuario {
 		this.nivel = nivel;
 	}
 
-	public Consolas getConsola() {
+	public String getConsola() {
 		return consola;
 	}
 
-	public void setConsola(Consolas consola) {
+	public void setConsola(String consola) {
 		this.consola = consola;
 	}
 
-	public Juego getJuego() {
+	public String getJuego() {
 		return juego;
 	}
 
-	public void setJuego(Juego juego) {
+	public void setJuego(String juego) {
 		this.juego = juego;
 	}
+
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
+	}
+	
 	
 }

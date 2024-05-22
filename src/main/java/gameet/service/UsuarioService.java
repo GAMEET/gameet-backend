@@ -12,6 +12,7 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.FirestoreClient;
 
 import gameet.entity.Usuario;
@@ -21,11 +22,17 @@ public class UsuarioService {
 
     private static final String COL_NAME = "usuarios"; // Nombre de la colección de Firestore
 
-    public Usuario getUsuarioById(Long id) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioById(Long id) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference documentReference = dbFirestore.collection(COL_NAME).document(String.valueOf(id));
         ApiFuture<DocumentSnapshot> future = documentReference.get();
-        DocumentSnapshot document = future.get();
+        DocumentSnapshot document;
+		try {
+			document = future.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         if (document.exists()) {
             return document.toObject(Usuario.class);
@@ -34,10 +41,16 @@ public class UsuarioService {
         }
     }
 
-    public Usuario getUsuarioByDescripcion(String descripcion) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByDescripcion(String descripcion) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("descripcion", descripcion).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -49,10 +62,16 @@ public class UsuarioService {
     }
 
  // Método para obtener un usuario por su dirección de correo electrónico
-    public Usuario getUsuarioByEmail(String email) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByEmail(String email){
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("email", email).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -64,10 +83,16 @@ public class UsuarioService {
     }
 
     // Método para obtener un usuario por su imagen de perfil
-    public Usuario getUsuarioByImagenPerfil(String imagenPerfil) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByImagenPerfil(String imagenPerfil) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("imagenPerfil", imagenPerfil).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -79,10 +104,16 @@ public class UsuarioService {
     }
 
  // Método para obtener un usuario por su contraseña
-    public Usuario getUsuarioByPassword(String password) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByPassword(String password)  {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("password", password).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -94,10 +125,16 @@ public class UsuarioService {
     }
 
     // Método para obtener un usuario por su número de teléfono
-    public Usuario getUsuarioByTelefono(Integer telefono) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByTelefono(Integer telefono){
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("telefono", telefono).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -109,10 +146,16 @@ public class UsuarioService {
     }
 
     // Método para obtener un usuario por su nombre de usuario
-    public Usuario getUsuarioByUsername(String username) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByUsername(String username){
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("username", username).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -124,10 +167,16 @@ public class UsuarioService {
     }
 
     // Método para obtener un usuario por sus características
-    public Usuario getUsuarioByCaracteristicas(String caracteristicas) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByCaracteristicas(String caracteristicas) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("caracteristicas", caracteristicas).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -139,10 +188,16 @@ public class UsuarioService {
     }
 
     // Método para obtener un usuario por su horario de juego
-    public Usuario getUsuarioByHorarioJuego(String horarioJuego) throws InterruptedException, ExecutionException {
+    public Usuario getUsuarioByHorarioJuego(String horarioJuego) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("horarioJuego", horarioJuego).get();
-        QuerySnapshot querySnapshot = query.get();
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
@@ -153,7 +208,7 @@ public class UsuarioService {
         return null; // Si no se encuentra ningún usuario con el horario de juego dado
     }
     
-    public void guardarUsuario(Usuario usuario) throws InterruptedException, ExecutionException {
+    public void guardarUsuario(Usuario usuario) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         DocumentReference docRef = dbFirestore.collection(COL_NAME).document(usuario.getUsername().toString());
         docRef.set(usuario);
@@ -162,17 +217,22 @@ public class UsuarioService {
     }
 
     // Método para obtener todos los usuarios excepto uno
-    public List<Usuario> getAllUsersExcept(String excludedUsername) throws InterruptedException, ExecutionException {
+    public List<Usuario> getAllUsersActivosExcept(String excludedUsername) {
         Firestore dbFirestore = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).get();
-        QuerySnapshot querySnapshot = query.get();
-
+        QuerySnapshot querySnapshot;
+		try {
+			querySnapshot = query.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
         List<Usuario> allUsers = new ArrayList<>();
 
         for (QueryDocumentSnapshot document : querySnapshot) {
             if (document.exists()) {
                 Usuario usuario = document.toObject(Usuario.class);
-                if (excludedUsername == null || !usuario.getUsername().equals(excludedUsername)) {
+                if ((excludedUsername == null || !usuario.getUsername().equals(excludedUsername)) && usuario.isActivo()) {
                     allUsers.add(usuario);
                 }
             }
@@ -180,5 +240,44 @@ public class UsuarioService {
 
         return allUsers;
     }
+
+    public void eliminarUsuario(String username) throws InterruptedException, ExecutionException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("username", username).get();
+        QuerySnapshot querySnapshot = query.get();
+
+        for (QueryDocumentSnapshot document : querySnapshot) {
+            if (document.exists()) {
+                dbFirestore.collection(COL_NAME).document(document.getId()).delete();
+                System.out.println("Usuario eliminado exitosamente.");
+                return; // Terminamos después de eliminar el primer usuario encontrado
+            }
+        }
+        System.out.println("No se encontró ningún usuario con el nombre de usuario dado.");
+    }
+
+	public void activacionUsuario(String username, boolean activo) throws InterruptedException, ExecutionException {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> query = dbFirestore.collection(COL_NAME).whereEqualTo("username", username).get();
+        QuerySnapshot querySnapshot = query.get();
+
+        for (QueryDocumentSnapshot document : querySnapshot) {
+            if (document.exists()) {
+                Usuario usuario = document.toObject(Usuario.class);
+                usuario.setActivo(activo);
+                
+                // Guardar el usuario actualizado en Firestore
+                ApiFuture<WriteResult> writeResult = dbFirestore.collection(COL_NAME).document(document.getId()).set(usuario);
+                writeResult.get(); // Espera hasta que la escritura se complete
+                
+                System.out.println("Usuario activado/desactivado exitosamente.");
+                return;
+            }
+        }
+        System.out.println("Usuario activado/desactivado ");		
+	}
+	
+
+
 
 }

@@ -1,5 +1,6 @@
 package gameet.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -7,13 +8,13 @@ import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import gameet.entity.Caracteristicas;
 import gameet.entity.Usuario;
 import gameet.service.UsuarioService;
 
@@ -27,44 +28,14 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
-    @GetMapping("/getUsuarioByDescripcion")
-    public Usuario getDescripcion(@RequestParam String descripcion) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByDescripcion(descripcion);
-    }
-
     @GetMapping("/getUsuarioByEmail")
     public Usuario getEmail(@RequestParam String email) throws InterruptedException, ExecutionException {
         return usuarioService.getUsuarioByEmail(email);
     }
 
-    @GetMapping("/getUsuarioByImagenPerfil")
-    public Usuario getImagenPerfil(@RequestParam String imagenPerfil) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByImagenPerfil(imagenPerfil);
-    }
-
-    @GetMapping("/getUsuarioByPassword")
-    public Usuario getPassword(@RequestParam String password) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByPassword(password);
-    }
-
-    @GetMapping("/getUsuarioByTelefono")
-    public Usuario getTelefono(@RequestParam Integer telefono) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByTelefono(telefono);
-    }
-
     @GetMapping("/getUsuarioByUsername")
     public Usuario getUsername(@RequestParam String username) throws InterruptedException, ExecutionException {
         return usuarioService.getUsuarioByUsername(username);
-    }
-
-    @GetMapping("/getUsuarioByCaracteristicas")
-    public Usuario getCaracteristicas(@RequestParam String caracteristicas) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByCaracteristicas(caracteristicas);
-    }
-
-    @GetMapping("/getUsuarioByHorarioJuego")
-    public Usuario getHorarioJuego(@RequestParam String a) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByHorarioJuego(a);
     }
     
     @PostMapping("/login")
@@ -88,7 +59,7 @@ public class UsuarioController {
                             @RequestParam(required = true) String email,
                             @RequestParam(required = true) String imagenPerfil,
                             @RequestParam(required = true) String telefono,
-                            @RequestParam(required = true) Caracteristicas caracteristicas,
+                            @RequestParam(required = true) List<String> caracteristicas,
                             @RequestParam(required = true) String horarioJuego) throws InterruptedException, ExecutionException {
 
         // Verificamos que ningun parámetro es nulo
@@ -121,10 +92,13 @@ public class UsuarioController {
         if (telefono.length() != 9) {
             return "Telefono invalido";
         }
-
+        List<String> listaJuegosUsuariosvacia= new ArrayList<>();
+        List<String> listausuariosvacia= new ArrayList<>();
+        
         Usuario usuario = new Usuario(descripcion, email, imagenPerfil, password, Integer.valueOf(telefono),
-    			username, caracteristicas, horarioJuego);
+    			username, caracteristicas, horarioJuego,true, listaJuegosUsuariosvacia, listausuariosvacia);
         usuarioService.guardarUsuario(usuario);
+        
         return "Usuario correctamente creado";
     }
     
@@ -147,12 +121,12 @@ public class UsuarioController {
         return email.matches(regex);
     }
     
-    @GetMapping("/listaUsuarios")
+    @GetMapping("/listaUsuariosActivos")
     public ResponseEntity<List<Usuario>> listaUsuarios(@RequestParam(required = true) String username) {
         try {
-            List<Usuario> usuarios = usuarioService.getAllUsersExcept(username);
+            List<Usuario> usuarios = usuarioService.getAllUsersActivosExcept(username);
             return ResponseEntity.ok().body(usuarios);
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
         }
@@ -163,11 +137,7 @@ public class UsuarioController {
         Usuario usuario = null;
 		try {
 			usuario = usuarioService.getUsuarioByUsername(username);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
         if (usuario != null) {
@@ -176,4 +146,35 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body("Usuario no encontrado");
         }
     }
+    
+    @DeleteMapping("/eliminar/{username}")
+    public String eliminarUsuario(@PathVariable String username) {
+    	try {
+			usuarioService.eliminarUsuario(username);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+        return "Usuario eliminado con éxito.";
+    }
+    
+    @PostMapping("/activar/{username}")
+    public String activarUsuario(@PathVariable String username) {
+    	try {
+			usuarioService.activacionUsuario(username, true);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+        return "Usuario activado con éxito.";
+    }
+    
+    @PostMapping("/desactivar/{username}")
+    public String desactivarUsuario(@PathVariable String username) {
+    	try {
+			usuarioService.activacionUsuario(username, false);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+        return "Usuario desactivado con éxito.";
+    }
+    
 }
