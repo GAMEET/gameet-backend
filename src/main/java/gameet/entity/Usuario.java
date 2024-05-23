@@ -40,7 +40,6 @@ public class Usuario {
 	}
 
 	public Usuario() {
-        this.rechazados = new ArrayList<>();
 
 	 }
 	

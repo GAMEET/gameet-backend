@@ -12,22 +12,6 @@ import com.google.firebase.FirebaseOptions;
 
 @Configuration
 public class FireStoreConfig {
-
-  /*  @PostConstruct
-    public void initialize() {
-        try {
-            FileInputStream serviceAccount =
-                    new FileInputStream("./gameet-1172e-firebase-adminsdk-8n29z-01059796ed.json");
-
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://gameet-1172e-default-rtdb.europe-west1.firebasedatabase.app")
-                    .build();
-
-            FirebaseApp.initializeApp(options);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
 	
 	 @Bean
 	    public FirebaseApp firebaseApp() throws IOException {

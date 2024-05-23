@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"firestore", "gameet"})
+@ComponentScan(basePackages = {"firestore", "gameet.security", "gameet"})
 public class GameetApplication {
 
 	public static void main(String[] args) {

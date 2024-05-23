@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import gameet.entity.Usuario;
 import gameet.service.SistemaRecomendacionService;
 import gameet.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -23,8 +24,9 @@ public class SistemaRecomendacionController {
     @Autowired
     private UsuarioService usuarioServ;
 
-    @GetMapping("/usuariosCompatibles/{username}")
-    public List<Usuario> getRecomendaciones(@PathVariable String username) {
+    @GetMapping("/api/usuariosCompatibles")
+    public List<Usuario> getRecomendaciones2(HttpServletRequest request) {
+    	String username = (String) request.getAttribute("username");
         Usuario usuarioBase;
 		try {
 			usuarioBase = usuarioServ.getUsuarioByUsername(username);
@@ -35,10 +37,11 @@ public class SistemaRecomendacionController {
              throw new IllegalArgumentException("Usuario no encontrado");
 		} 
     }
+    
+    @PostMapping("/api/usuariosCompatibles/rechazar/{rechazadoUsername}")
+    public void rechazarUsuario( @PathVariable String usernameRechazado, HttpServletRequest request){
+    	String username = (String) request.getAttribute("username");
 
-    @PostMapping("/usuariosCompatibles/{username}/rechazar/{rechazadoUsername}")
-    public void rechazarUsuario(@PathVariable String username, @PathVariable String usernameRechazado){
-        
     	try {
 	    	Usuario usuarioBase = usuarioServ.getUsuarioByUsername(username);
 	        usuarioBase.rechazarUsuario(username);
