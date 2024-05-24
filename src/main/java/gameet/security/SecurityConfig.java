@@ -23,6 +23,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())  // Deshabilitar CSRF
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/login").permitAll()  // Permitir acceso al endpoint de login sin autenticación
+                .requestMatchers("/auth/registro").permitAll()
                 .anyRequest().authenticated()  // Proteger todas las demás rutas
             )
             .addFilterAfter(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
