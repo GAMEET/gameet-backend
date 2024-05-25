@@ -1,13 +1,15 @@
 package gameet.entity;
 
+import com.google.cloud.firestore.annotation.DocumentId;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "juegosUsuario")
 public class JuegosUsuario {
 	
+	@DocumentId
 	private String id;
 	
 	private String usuario;
@@ -60,6 +62,14 @@ public class JuegosUsuario {
 
 	public void setUsuario(String usuario) {
 		this.usuario = usuario;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	

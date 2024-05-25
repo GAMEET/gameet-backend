@@ -250,7 +250,7 @@ public class UsuarioService {
             if (document.exists()) {
                 dbFirestore.collection(COL_NAME).document(document.getId()).delete();
                 System.out.println("Usuario eliminado exitosamente.");
-                return; // Terminamos después de eliminar el primer usuario encontrado
+                return;
             }
         }
         System.out.println("No se encontró ningún usuario con el nombre de usuario dado.");

@@ -1,5 +1,121 @@
 package gameet.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.firebase.cloud.FirestoreClient;
+
+import gameet.entity.Juego;
+import gameet.entity.JuegosUsuario;
+import gameet.entity.JuegosUsuarioRequest;
+import gameet.entity.Usuario;
+import gameet.service.JuegoService;
+import gameet.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class JuegoController {
 
+	  @Autowired
+	  private UsuarioService usuarioServ;
+	  
+	  @Autowired
+	  private JuegoService juegosServ;
+
+	  //Metodo para asignar juegos a un usuario
+	  @PostMapping("/api/seleccionJuego")
+	    public void seleccionJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request){
+	    	String username = (String) request.getAttribute("username");
+
+	    	try {
+		    	Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+		    	String juegosusuarios = crearJuegoUsuario(usuario.getUsername(), juegos);
+		    	List <String> listaJuegos =usuario.getJuegos();
+		    	listaJuegos.add(juegosusuarios);
+		    	usuario.setJuegos(listaJuegos);
+		    	usuarioServ.guardarUsuario(usuario);
+		    	
+	    	} catch (Exception e) {
+				e.printStackTrace();
+			} 
+	    }
+	  
+	  //Metodo para eliminar la asignacion de un juega en un usuario
+	  @PostMapping("/api/eliminarJuego")
+	    public void eliminarJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request){
+	    	String username = (String) request.getAttribute("username");
+
+	    	try {
+		    	Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+		    	List <String> listaJuegos =usuario.getJuegos();
+				JuegosUsuario juego1 = juegosServ.getJuegoUsuarioByTituloandUsusarioandConsola(juegos.getJuego(), username,juegos.getConsola());
+		    	listaJuegos.remove(juego1.getId());
+		    	usuario.setJuegos(listaJuegos);
+		    	usuarioServ.guardarUsuario(usuario);
+		    	eliminarJuegoUsuario(juego1.getId());
+		    	
+	    	} catch (Exception e) {
+				e.printStackTrace();
+			} 
+	    }
+	  
+	  //Metodo para obtener una lista de juegos enviando el usuario autenticado en el token
+	  @GetMapping("/api/juegosUsuario")
+	  public List<Juego> juegosUsuario(HttpServletRequest request) {
+	    	String username = (String) request.getAttribute("username");
+			try {
+				Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+				List<JuegosUsuario> juegosusuario = juegosServ.obtenerJuegosUsuarios(usuario.getJuegos());
+				List<Juego>listajuegos = new ArrayList<Juego>();
+				for(JuegosUsuario ju : juegosusuario) {
+					Juego juego1 = juegosServ.getJuegoById(ju.getJuego().trim());
+					listajuegos.add(juego1);
+				}
+				return listajuegos;
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			} 
+	    }
+	    
+	    public String  crearJuegoUsuario(String usuario, JuegosUsuarioRequest juegos) {
+	        Firestore dbFirestore = FirestoreClient.getFirestore();
+	        JuegosUsuario ju = new JuegosUsuario();
+	        ju.setConsola(juegos.getConsola());
+	        ju.setNivel(juegos.getNivel());
+	        ju.setUsuario(usuario);
+	        ju.setJuego(juegos.getJuego());
+
+	        DocumentReference docRef = dbFirestore.collection("juegosUsuario").document();
+
+	        try {
+	            docRef.set(ju);
+	            return docRef.getId();
+	        } catch (Exception e) {
+	            System.err.println("Error: " + e.getMessage());
+	            return null;
+	        }
+	    }
+	    
+	    public void eliminarJuegoUsuario(String documentId) {
+	        Firestore dbFirestore = FirestoreClient.getFirestore();
+
+	        try {
+	            dbFirestore.collection("juegosUsuario").document(documentId).delete().get();
+	        } catch (Exception e) {
+	            System.err.println("Error: " + e.getMessage());
+	        }
+	    }
+	
 }

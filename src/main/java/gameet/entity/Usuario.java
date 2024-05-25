@@ -3,6 +3,8 @@ package gameet.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.firebase.database.PropertyName;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -19,6 +21,7 @@ public class Usuario {
 	private List<String> caracteristicas;
 	private String horarioJuego;
 	private boolean activo;
+	@PropertyName("juegos")
 	private List<String> juegos;
     private List<String> rechazados;   
 
@@ -97,9 +100,11 @@ public class Usuario {
 	public void setCaracteristicas(List<String> caracteristicas) {
 		this.caracteristicas = caracteristicas;
 	}
+	@PropertyName("juegos")
 	public List<String> getJuegos() {
 		return juegos;
 	}
+	@PropertyName("juegos")
 	public void setJuegos(List<String> juegos) {
 		this.juegos = juegos;
 	}
