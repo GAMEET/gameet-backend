@@ -1,6 +1,6 @@
 package gameet.entity;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -9,15 +9,15 @@ import jakarta.persistence.Table;
 @Table(name = "enlace")
 public class Enlace {
 
-	private LocalDate fechaEnlace;
+	private Timestamp fechaEnlace;
 	private boolean like;
-	private Usuario usuarioEntrada;
-	private Usuario usuarioSalida;
+	private String usuarioEntrada;
+	private String usuarioSalida;
 	
 	public Enlace() {
 		super();
 	}
-	public Enlace(LocalDate fechaEnlace, boolean like, Usuario usuarioEntrada, Usuario usuarioSalida) {
+	public Enlace(Timestamp  fechaEnlace, boolean like, String usuarioEntrada, String usuarioSalida) {
 		super();
 		this.fechaEnlace = fechaEnlace;
 		this.like = like;
@@ -31,10 +31,10 @@ public class Enlace {
 				+ ", usuarioSalida=" + usuarioSalida + "]";
 	}
 	
-	public LocalDate getFechaEnlace() {
+	public Timestamp  getFechaEnlace() {
 		return fechaEnlace;
 	}
-	public void setFechaEnlace(LocalDate fechaEnlace) {
+	public void setFechaEnlace(Timestamp   fechaEnlace) {
 		this.fechaEnlace = fechaEnlace;
 	}
 	public boolean isLike() {
@@ -43,16 +43,16 @@ public class Enlace {
 	public void setLike(boolean like) {
 		this.like = like;
 	}
-	public Usuario getUsuarioEntrada() {
+	public String getUsuarioEntrada() {
 		return usuarioEntrada;
 	}
-	public void setUsuarioEntrada(Usuario usuarioEntrada) {
+	public void setUsuarioEntrada(String usuarioEntrada) {
 		this.usuarioEntrada = usuarioEntrada;
 	}
-	public Usuario getUsuarioSalida() {
+	public String getUsuarioSalida() {
 		return usuarioSalida;
 	}
-	public void setUsuarioSalida(Usuario usuarioSalida) {
+	public void setUsuarioSalida(String usuarioSalida) {
 		this.usuarioSalida = usuarioSalida;
 	}	
 	

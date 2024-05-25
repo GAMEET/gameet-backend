@@ -1,6 +1,5 @@
 package gameet.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.firebase.database.PropertyName;
@@ -108,17 +107,14 @@ public class Usuario {
 	public void setJuegos(List<String> juegos) {
 		this.juegos = juegos;
 	}
+	@PropertyName("rechazados")
 	public List<String> getRechazados() {
 		return rechazados;
 	}
+	@PropertyName("rechazados")
 	public void setRechazados(List<String> rechazados) {
 		this.rechazados = rechazados;
 	}
-	
-    public void rechazarUsuario(String usuario) {
-        if (!rechazados.contains(usuario)) {
-            rechazados.add(usuario);
-        }
-    }
+
 	
 }
