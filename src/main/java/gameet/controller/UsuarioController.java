@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import gameet.entity.Usuario;
+import gameet.entity.UsuarioPerfilRequest;
 import gameet.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -22,78 +24,102 @@ import jakarta.servlet.http.HttpServletRequest;
 @CrossOrigin(origins = "http://localhost:4200")
 public class UsuarioController {
 
-    @Autowired
-    UsuarioService usuarioService;
+	@Autowired
+	UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
-    @GetMapping("/getUsuarioByEmail")
-    public Usuario getEmail(@RequestParam String email) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByEmail(email);
-    }
+	public UsuarioController(UsuarioService usuarioService) {
+		this.usuarioService = usuarioService;
+	}
 
-    @GetMapping("/getUsuarioByUsername")
-    public Usuario getUsername(@RequestParam String username) throws InterruptedException, ExecutionException {
-        return usuarioService.getUsuarioByUsername(username);
-    }
-    
-    @GetMapping("/listaUsuariosActivos")
-    public ResponseEntity<List<Usuario>> listaUsuarios(@RequestParam(required = true) String username) {
-        try {
-            List<Usuario> usuarios = usuarioService.getAllUsersActivosExcept(username);
-            return ResponseEntity.ok().body(usuarios);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    
-    @GetMapping("/usuario")
-    public ResponseEntity<?> getUsuarioPorUsername(@RequestParam (required = true)String username) {
-        Usuario usuario = null;
+	@GetMapping("/getUsuarioByEmail")
+	public Usuario getEmail(@RequestParam String email) throws InterruptedException, ExecutionException {
+		return usuarioService.getUsuarioByEmail(email);
+	}
+
+	@GetMapping("/getUsuarioByUsername")
+	public Usuario getUsername(@RequestParam String username) throws InterruptedException, ExecutionException {
+		return usuarioService.getUsuarioByUsername(username);
+	}
+
+	@GetMapping("/listaUsuariosActivos")
+	public ResponseEntity<List<Usuario>> listaUsuarios(@RequestParam(required = true) String username) {
+		try {
+			List<Usuario> usuarios = usuarioService.getAllUsersActivosExcept(username);
+			return ResponseEntity.ok().body(usuarios);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@GetMapping("/usuario")
+	public ResponseEntity<?> getUsuarioPorUsername(@RequestParam(required = true) String username) {
+		Usuario usuario = null;
 		try {
 			usuario = usuarioService.getUsuarioByUsername(username);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        } else {
-            return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body("Usuario no encontrado");
-        }
-    }
-    
-    @DeleteMapping("/api/eliminar/{username}")
-    public String eliminarUsuario(@PathVariable String username) {
-    	try {
+		if (usuario != null) {
+			return ResponseEntity.ok(usuario);
+		} else {
+			return ResponseEntity.status(HttpStatus.SC_NOT_FOUND).body("Usuario no encontrado");
+		}
+	}
+
+	@DeleteMapping("/api/perfil/eliminar")
+	public String eliminarUsuario(HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		try {
 			usuarioService.eliminarUsuario(username);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-        return "Usuario eliminado con éxito.";
-    }
-    
-    @PostMapping("/api/perfil/activar")
-    public String activarUsuario(HttpServletRequest request) {
-    	String username = (String) request.getAttribute("username");
-    	try {
+		return "Usuario eliminado con éxito.";
+	}
+
+	@PostMapping("/api/perfil/activar")
+	public String activarUsuario(HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		try {
 			usuarioService.activacionUsuario(username, true);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-        return "Usuario activado con éxito.";
-    }
-    
-    @PostMapping("/api/perfil/desactivar")
-    public String desactivarUsuario(HttpServletRequest request) {
-    	String username = (String) request.getAttribute("username");
-    	try {
+		return "Usuario activado con éxito.";
+	}
+
+	@PostMapping("/api/perfil/desactivar")
+	public String desactivarUsuario(HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		try {
 			usuarioService.activacionUsuario(username, false);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-        return "Usuario desactivado con éxito.";
-    }
-    
+		return "Usuario desactivado con éxito.";
+	}
+
+	@GetMapping("/api/perfil")
+	public Usuario perfilUsuario(HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		Usuario usuarioBase = usuarioService.getUsuarioByUsername(username);
+		return usuarioBase;
+	}
+
+	@PostMapping("/api/perfil/editar")
+	public Usuario actualizarUsuario(@RequestBody UsuarioPerfilRequest usuarioPerfil, HttpServletRequest request) {
+		String username = (String) request.getAttribute("username");
+		Usuario usuarioBase = usuarioService.getUsuarioByUsername(username);
+		usuarioBase.setCaracteristicas(usuarioPerfil.getCaracteristicas());
+		usuarioBase.setEmail(usuarioPerfil.getEmail());
+		usuarioBase.setDescripcion(usuarioPerfil.getDescripcion());
+		usuarioBase.setHorarioJuego(usuarioPerfil.getHorarioJuego());
+		usuarioBase.setImagenPerfil(usuarioPerfil.getImagenPerfil());
+		usuarioBase.setPassword(usuarioPerfil.getPassword());
+		usuarioBase.setTelefono(usuarioPerfil.getTelefono());
+		usuarioService.guardarUsuario(usuarioBase);
+		return usuarioBase;
+	}
+
 }
