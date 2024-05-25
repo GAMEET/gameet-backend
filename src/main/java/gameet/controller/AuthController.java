@@ -48,7 +48,7 @@ public class AuthController {
     }
     
     @PostMapping("/registro")
-    public ResponseEntity<String> registro(
+    public ResponseEntity<Map<String, String>> registro(
             @RequestParam(required = true) String username,
             @RequestParam(required = true) String password,
             @RequestParam(required = true) String descripcion,
@@ -60,55 +60,39 @@ public class AuthController {
 
         String error = null;
 
-        // Verificamos que ningún parámetro es nulo
+        // Validaciones
         if (username == null || password == null || descripcion == null || email == null || imagenPerfil == null
                 || telefono == null || caracteristicas == null || horarioJuego == null) {
             error = "Faltan campos";
-        }
-
-        // Verificamos que el username tiene más de 4 letras
-        if (username.length() <= 4) {
+        } else if (username.length() <= 4) {
             error = "Username incorrecto";
-        }
-
-        // Verificamos que la contraseña tiene al menos 8 caracteres
-        if (password.length() < 8) {
+        } else if (password.length() < 8) {
             error = "Password incorrecto";
-        }
-
-        // Verificamos que el username es único
-        if (!esUsernameUnico(username)) {
+        } else if (!esUsernameUnico(username)) {
             error = "Username repetido";
-        }
-        
-        // Verificamos que el correo electrónico tenga el formato adecuado
-        if (!isValidEmail(email)) {
+        } else if (!isValidEmail(email)) {
             error = "Email inválido";
-        }
-        
-        // Verificamos que el número de teléfono tenga 9 cifras
-        if (telefono.length() != 9) {
+        } else if (telefono.length() != 9) {
             error = "Teléfono inválido";
         }
 
-        // Convertimos el archivo de imagen a base64 o a otra representación de string si es necesario
+        if (error != null) {
+            return ResponseEntity.status(401).body(Collections.singletonMap("error", error));
+        }
+
         String imagenPerfilString = Base64.getEncoder().encodeToString(imagenPerfil.getBytes());
-
-        // Convertimos el string de características a una lista
         List<String> caracteristicasList = Arrays.asList(caracteristicas.split(","));
-
         List<String> listaJuegosUsuariosvacia = new ArrayList<>();
         List<String> listausuariosvacia = new ArrayList<>();
-        
+
         Usuario usuario = new Usuario(descripcion, email, imagenPerfilString, password, Integer.valueOf(telefono),
                 username, caracteristicasList, horarioJuego, true, listaJuegosUsuariosvacia, listausuariosvacia);
         usuarioService.guardarUsuario(usuario);
+
         String token = JwtUtil.generateToken(usuario.getUsername());
-        
-        if (error != null) {
-            return ResponseEntity.status(401).body(error);
-        }
-        return ResponseEntity.ok(token);
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        return ResponseEntity.ok(response);
     }
     
     // Método de ejemplo para verificar si el username es único en la base de datos
