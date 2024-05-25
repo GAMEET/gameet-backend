@@ -1,6 +1,5 @@
 package gameet.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,7 +64,7 @@ public class UsuarioController {
         }
     }
     
-    @DeleteMapping("/eliminar/{username}")
+    @DeleteMapping("/api/eliminar/{username}")
     public String eliminarUsuario(@PathVariable String username) {
     	try {
 			usuarioService.eliminarUsuario(username);
@@ -75,8 +74,9 @@ public class UsuarioController {
         return "Usuario eliminado con éxito.";
     }
     
-    @PostMapping("/activar/{username}")
-    public String activarUsuario(@PathVariable String username) {
+    @PostMapping("/api/perfil/activar")
+    public String activarUsuario(HttpServletRequest request) {
+    	String username = (String) request.getAttribute("username");
     	try {
 			usuarioService.activacionUsuario(username, true);
 		} catch (InterruptedException | ExecutionException e) {
@@ -85,8 +85,9 @@ public class UsuarioController {
         return "Usuario activado con éxito.";
     }
     
-    @PostMapping("/desactivar/{username}")
-    public String desactivarUsuario(@PathVariable String username) {
+    @PostMapping("/api/perfil/desactivar")
+    public String desactivarUsuario(HttpServletRequest request) {
+    	String username = (String) request.getAttribute("username");
     	try {
 			usuarioService.activacionUsuario(username, false);
 		} catch (InterruptedException | ExecutionException e) {
