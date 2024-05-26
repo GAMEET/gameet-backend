@@ -1,22 +1,21 @@
 package gameet.entity;
 
 import java.util.List;
+import java.util.Map;
 
 public class JuegoRequest {
 
 	private List<String>  genero;
 	private String imagenPortada;
-	private List<String> consolas;
+	private Map<String,Integer> consolaNivel;
 	private String titulo;
-	private Integer nivel;
 	
-	public JuegoRequest(Juego juego,Integer nivel, List<String> consolas ) {
+	public JuegoRequest(Juego juego, Map<String,Integer>  consolaNivel ) {
 		super();
 		this.genero = juego.getGenero();
 		this.imagenPortada = juego.getImagenPortada();
-		this.consolas = consolas;
+		this.consolaNivel = consolaNivel;
 		this.titulo = juego.getTitulo();
-		this.nivel = nivel;
 	}
 	public List<String> getGenero() {
 		return genero;
@@ -30,23 +29,18 @@ public class JuegoRequest {
 	public void setImagenPortada(String imagenPortada) {
 		this.imagenPortada = imagenPortada;
 	}
-	public List<String> getConsolas() {
-		return consolas;
-	}
-	public void setConsolas(List<String> consolas) {
-		this.consolas = consolas;
-	}
+
 	public String getTitulo() {
 		return titulo;
 	}
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
 	}
-	public Integer getNivel() {
-		return nivel;
+	public Map<String, Integer> getConsolaNivel() {
+		return consolaNivel;
 	}
-	public void setNivel(Integer nivel) {
-		this.nivel = nivel;
+	public void setConsolaNivel(Map<String, Integer> consolaNivel) {
+		this.consolaNivel = consolaNivel;
 	}
 	
 	

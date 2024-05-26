@@ -88,13 +88,16 @@ public class JuegoController {
 
 	              if (juegosMap.containsKey(juegoId)) {
 	                  JuegoRequest jr = juegosMap.get(juegoId);
-	                  if (!jr.getConsolas().contains(ju.getConsola())) {
-	                      jr.getConsolas().add(ju.getConsola());
+	                  Integer nivelesAux= jr.getConsolaNivel().get(ju.getConsola());
+	                  
+	                  if(nivelesAux == null) {
+	                	  jr.getConsolaNivel().put(ju.getConsola(), ju.getNivel());
 	                  }
+	                  	                  
 	              } else {
-	                  List<String> consolas = new ArrayList<>();
-	                  consolas.add(ju.getConsola());
-	                  JuegoRequest jr = new JuegoRequest(juego1, ju.getNivel(), consolas);
+	                  Map<String, Integer> consolaNivel = new HashMap<>();
+	                  consolaNivel.put(ju.getConsola(), ju.getNivel());
+	                  JuegoRequest jr = new JuegoRequest(juego1,consolaNivel);
 	                  juegosMap.put(juegoId, jr);
 	              }
 	          }
@@ -106,6 +109,8 @@ public class JuegoController {
 	          return null;
 	      }
 	  }
+
+
 
 	    
 	    public String  crearJuegoUsuario(String usuario, JuegosUsuarioRequest juegos) {
