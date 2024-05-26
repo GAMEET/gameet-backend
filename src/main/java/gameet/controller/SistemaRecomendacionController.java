@@ -46,15 +46,26 @@ public class SistemaRecomendacionController {
 		try {
 			usuarioBase = usuarioServ.getUsuarioByUsername(username);
 			List<Usuario>listausuarios = sistemaRecomendacionServ.recomendarUsuarios(usuarioBase);
-			
 		    List<SistemaRecomendacionRequest> res = new ArrayList<>();
 		    
 		    for(Usuario u : listausuarios) {
 		    	Map<String,List<String>> mapaJuegoConsolas = new HashMap<>(); 
+		    	List<String> consolas = new ArrayList<>();
+		    	
 		    	for(String j : u.getJuegos()) {
 			    	JuegosUsuario juegoUsuarioCompleto = juegosServ.getJuegoUsuarioById(j);
 			    	Juego juegoCompleto = juegosServ.getJuegoById(juegoUsuarioCompleto.getJuego());
-			    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(), juegoCompleto.getConsolas());
+			    	
+			    	if(mapaJuegoConsolas.containsKey(juegoCompleto.getTitulo())) {
+			    		List<String> aux= mapaJuegoConsolas.get(juegoCompleto.getTitulo());
+			    		aux.add(juegoUsuarioCompleto.getConsola());
+				    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(),consolas);	
+				    	
+			    	}else {
+			    		consolas.add(juegoUsuarioCompleto.getConsola());
+				    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(),consolas);
+
+			    	}
 		    	}
 		    	SistemaRecomendacionRequest srr = new SistemaRecomendacionRequest(u,mapaJuegoConsolas );
 		    	res.add(srr);

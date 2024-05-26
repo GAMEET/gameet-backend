@@ -1,7 +1,9 @@
 package gameet.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +17,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 
 import gameet.entity.Juego;
+import gameet.entity.JuegoRequest;
 import gameet.entity.JuegosUsuario;
 import gameet.entity.JuegosUsuarioRequest;
 import gameet.entity.Usuario;
@@ -71,23 +74,39 @@ public class JuegoController {
 	  
 	  //Metodo para obtener una lista de juegos enviando el usuario autenticado en el token
 	  @GetMapping("/api/juegosUsuario")
-	  public List<Juego> juegosUsuario(HttpServletRequest request) {
-	    	String username = (String) request.getAttribute("username");
-			try {
-				Usuario usuario = usuarioServ.getUsuarioByUsername(username);
-				List<JuegosUsuario> juegosusuario = juegosServ.obtenerJuegosUsuarios(usuario.getJuegos());
-				List<Juego>listajuegos = new ArrayList<Juego>();
-				for(JuegosUsuario ju : juegosusuario) {
-					Juego juego1 = juegosServ.getJuegoById(ju.getJuego().trim());
-					listajuegos.add(juego1);
-				}
-				return listajuegos;
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			} 
-	    }
+	  public List<JuegoRequest> juegosUsuario(HttpServletRequest request) {
+	      String username = (String) request.getAttribute("username");
+	      List<JuegoRequest> res = new ArrayList<>();
+	      try {
+	          Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+	          List<JuegosUsuario> juegosusuario = juegosServ.obtenerJuegosUsuarios(usuario.getJuegos());
+	          Map<String, JuegoRequest> juegosMap = new HashMap<>();
+
+	          for (JuegosUsuario ju : juegosusuario) {
+	              String juegoId = ju.getJuego().trim();
+	              Juego juego1 = juegosServ.getJuegoById(juegoId);
+
+	              if (juegosMap.containsKey(juegoId)) {
+	                  JuegoRequest jr = juegosMap.get(juegoId);
+	                  if (!jr.getConsolas().contains(ju.getConsola())) {
+	                      jr.getConsolas().add(ju.getConsola());
+	                  }
+	              } else {
+	                  List<String> consolas = new ArrayList<>();
+	                  consolas.add(ju.getConsola());
+	                  JuegoRequest jr = new JuegoRequest(juego1, ju.getNivel(), consolas);
+	                  juegosMap.put(juegoId, jr);
+	              }
+	          }
+
+	          res.addAll(juegosMap.values());
+	          return res;
+	      } catch (Exception e) {
+	          e.printStackTrace();
+	          return null;
+	      }
+	  }
+
 	    
 	    public String  crearJuegoUsuario(String usuario, JuegosUsuarioRequest juegos) {
 	        Firestore dbFirestore = FirestoreClient.getFirestore();
