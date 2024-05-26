@@ -1,6 +1,9 @@
 package gameet.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,9 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import gameet.entity.Juego;
+import gameet.entity.JuegosUsuario;
+import gameet.entity.SistemaRecomendacionRequest;
 import gameet.entity.Usuario;
 import gameet.entity.UsuarioRequest;
 import gameet.service.EnlaceService;
+import gameet.service.JuegoService;
 import gameet.service.SistemaRecomendacionService;
 import gameet.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,14 +35,32 @@ public class SistemaRecomendacionController {
     
     @Autowired
     private EnlaceService enlaceServ;
+    
+	@Autowired
+	private JuegoService juegosServ;
 
     @GetMapping("/api/usuariosCompatibles")
-    public List<Usuario> getRecomendaciones2(HttpServletRequest request) {
+    public List<SistemaRecomendacionRequest> getRecomendaciones2(HttpServletRequest request) {
     	String username = (String) request.getAttribute("username");
         Usuario usuarioBase;
 		try {
 			usuarioBase = usuarioServ.getUsuarioByUsername(username);
-			return sistemaRecomendacionServ.recomendarUsuarios(usuarioBase);
+			List<Usuario>listausuarios = sistemaRecomendacionServ.recomendarUsuarios(usuarioBase);
+			
+		    List<SistemaRecomendacionRequest> res = new ArrayList<>();
+		    
+		    for(Usuario u : listausuarios) {
+		    	Map<String,List<String>> mapaJuegoConsolas = new HashMap<>(); 
+		    	for(String j : u.getJuegos()) {
+			    	JuegosUsuario juegoUsuarioCompleto = juegosServ.getJuegoUsuarioById(j);
+			    	Juego juegoCompleto = juegosServ.getJuegoById(juegoUsuarioCompleto.getJuego());
+			    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(), juegoCompleto.getConsolas());
+		    	}
+		    	SistemaRecomendacionRequest srr = new SistemaRecomendacionRequest(u,mapaJuegoConsolas );
+		    	res.add(srr);
+		    	
+		    }
+		    return res;
 			
 		} catch (Exception e) {
 			e.printStackTrace();

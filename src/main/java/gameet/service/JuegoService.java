@@ -12,6 +12,7 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -57,6 +58,25 @@ public class JuegoService {
 	        }
 	    }
 	 
+	 public List<Juego> getAllJuegos() {
+		    Firestore db = FirestoreClient.getFirestore();
+		    CollectionReference juegosRef = db.collection("juegos");
+		    ApiFuture<QuerySnapshot> future = juegosRef.get();
+
+		    List<Juego> juegos = new ArrayList<>();
+		    try {
+		        QuerySnapshot querySnapshot = future.get();
+		        for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
+		            Juego juego = document.toObject(Juego.class);
+		            juegos.add(juego);
+		        }
+		    } catch (InterruptedException | ExecutionException e) {
+		        e.printStackTrace();
+		    }
+
+		    return juegos;
+		}
+	 
 	 public JuegosUsuario getJuegoUsuarioByTituloandUsusarioandConsola(String idJuego, String usuario, String consola) throws ExecutionException, InterruptedException {
 	        Firestore db = FirestoreClient.getFirestore();
 	        CollectionReference juegosUsuarioCollection = db.collection("juegosUsuario");
@@ -77,7 +97,7 @@ public class JuegoService {
 	        }
 	    }
 
-	public Juego getJuegoUsuarioById(String id) {
+	public JuegosUsuario getJuegoUsuarioById(String id) {
 		 Firestore db = FirestoreClient.getFirestore();
 	        DocumentReference docRef = db.collection("juegosUsuario").document(id);
 	        ApiFuture<DocumentSnapshot> future = docRef.get();
@@ -89,23 +109,30 @@ public class JuegoService {
 				document=null;
 			} 
 	        if (document.exists()) {
-	            Juego juego = document.toObject(Juego.class);
+	        	JuegosUsuario juego = document.toObject(JuegosUsuario.class);
 	            return juego;
 	        } else {
 	            return null;
 	        }
 	}
 	
-	 public Juego getJuegoById(String id) throws ExecutionException, InterruptedException {
+	 public Juego getJuegoById(String id){
 		 Firestore db = FirestoreClient.getFirestore();
 	        DocumentReference docRef = db.collection("juegos").document(id);
 	        ApiFuture<DocumentSnapshot> future = docRef.get();
-	        DocumentSnapshot document = future.get();
-	        if (document.exists()) {
-	            Juego juego = document.toObject(Juego.class);
-	            return juego;
-	        } else {
-	            return null;
-	        }
+	        DocumentSnapshot document;
+			try {
+				document = future.get();
+				if (document.exists()) {
+		            Juego juego = document.toObject(Juego.class);
+		            return juego;
+		        } else {
+		            return null;
+		        }
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				return null;
+			}
+	        
 	    }
 }

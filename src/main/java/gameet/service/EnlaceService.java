@@ -4,6 +4,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,7 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -64,6 +68,49 @@ public class EnlaceService {
 			return false;
 		}
 
+	}
+
+	public List<Enlace> getEnlacesRecibidos(String usuario) {
+		Firestore db = FirestoreClient.getFirestore();
+		CollectionReference enlaceCollection = db.collection("enlaces");
+		Query query = enlaceCollection.whereEqualTo("usuarioSalida", usuario).whereEqualTo("like", true);
+		ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+		List<Enlace> enlacesRecibidos = new ArrayList<>();
+		try {
+			QuerySnapshot snapshot = querySnapshot.get();
+			for (QueryDocumentSnapshot document : snapshot.getDocuments()) {
+				Enlace enlace = document.toObject(Enlace.class);
+				enlacesRecibidos.add(enlace);
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+
+		return enlacesRecibidos;
+	}
+	
+	// Método que verifica si existe un enlace entre dos usuarios
+	boolean existeEnlaceEntre(String usuarioOrigen, String usuario) {
+		Firestore db = FirestoreClient.getFirestore();
+		CollectionReference enlaceCollection = db.collection("enlaces");
+		Query query = enlaceCollection.whereEqualTo("usuarioEntrada", usuarioOrigen).whereEqualTo("usuarioSalida",  usuario).whereEqualTo("like", true);
+		ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+		List<Enlace> enlacesRecibidos = new ArrayList<>();
+		try {
+			QuerySnapshot snapshot = querySnapshot.get();
+			for (QueryDocumentSnapshot document : snapshot.getDocuments()) {
+				Enlace enlace = document.toObject(Enlace.class);
+				enlacesRecibidos.add(enlace);
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		if(!enlacesRecibidos.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 }

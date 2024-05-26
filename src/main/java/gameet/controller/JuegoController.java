@@ -117,5 +117,17 @@ public class JuegoController {
 	            System.err.println("Error: " + e.getMessage());
 	        }
 	    }
+	    
+		  //Metodo para asignar juegos a un usuario
+		  @GetMapping("/api/juegos")
+		    public List<Juego> listadoJuego(HttpServletRequest request){
+		    	try {
+		    		return juegosServ.getAllJuegos();
+			    	
+		    	} catch (Exception e) {
+					e.printStackTrace();
+				}
+				return null; 
+		    }
 	
 }

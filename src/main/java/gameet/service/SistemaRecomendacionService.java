@@ -19,7 +19,10 @@ public class SistemaRecomendacionService {
 	
 	@Autowired
 	private JuegoService juegosServ;
-
+	
+	@Autowired
+	private EnlaceService enlaceServ;
+	
 	public SistemaRecomendacionService(List<Usuario> usuarios) {
 		this.usuarios = usuarios;
 	}
@@ -37,7 +40,7 @@ public class SistemaRecomendacionService {
 	    List<Usuario> paso2 = paso1.stream()
 	            .filter(u -> !usuarioOrigen.getRechazados().contains(u.getUsername()))
 	            .collect(Collectors.toList());
-
+	    
 	    // Paso 3: Eliminamos usuarios que no tengan juegos en comun ni consolas
 	    List<Usuario> paso3 = paso2.stream()
 	            .filter(u -> tienenJuegoComun(usuarioOrigen, u))
@@ -52,8 +55,13 @@ public class SistemaRecomendacionService {
 	            })
 	            .collect(Collectors.toList());
 	    
-	    // Devolver lista de usuarios recomendados
-	    return paso4;
+	    // Paso 5: Verificar que no exista un enlace entre los usuarios de la lista de recomendados y el UsuarioOrigen
+	    List<Usuario> paso5 = paso4.stream()
+	            .filter(u -> !existeEnlaceEntre(usuarioOrigen, u))
+	            .collect(Collectors.toList());
+	    
+
+	    return paso5;
 	}
 
 
@@ -71,6 +79,10 @@ public class SistemaRecomendacionService {
             }
         }
         return false;
+    }
+    
+    private boolean existeEnlaceEntre(Usuario usuarioOrigen, Usuario usuario) {
+        return enlaceServ.existeEnlaceEntre(usuarioOrigen.getUsername(), usuario.getUsername());
     }
     
     //Metodo para calcular la similitud (puntuacion) entre dos usuarios
