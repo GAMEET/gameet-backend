@@ -16,6 +16,14 @@
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+	
+	  <repositories>
+        <repository>
+            <id>mvnrepository</id>
+            <url>https://mvnrepository.com/artifact/io.getstream/stream-chat-android-client/6.4.0</url>
+        </repository>
+    </repositories>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -78,6 +86,15 @@
 		    <version>0.11.2</version>
 		    <scope>runtime</scope>
 		</dependency>
+		
+
+<!-- https://mvnrepository.com/artifact/io.getstream/stream-chat-android-client -->
+<dependency>
+    <groupId>io.getstream</groupId>
+    <artifactId>stream-chat-java</artifactId>
+    <version>1.23.0</version>
+</dependency>
+
 
 
 	</dependencies>
