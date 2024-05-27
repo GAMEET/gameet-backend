@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class JuegoRequest {
 
+	private String id;
 	private List<String>  genero;
 	private String imagenPortada;
 	private Map<String,Integer> consolaNivel;
@@ -12,6 +13,7 @@ public class JuegoRequest {
 	
 	public JuegoRequest(Juego juego, Map<String,Integer>  consolaNivel ) {
 		super();
+		this.id = juego.getId();
 		this.genero = juego.getGenero();
 		this.imagenPortada = juego.getImagenPortada();
 		this.consolaNivel = consolaNivel;
@@ -41,6 +43,12 @@ public class JuegoRequest {
 	}
 	public void setConsolaNivel(Map<String, Integer> consolaNivel) {
 		this.consolaNivel = consolaNivel;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	

@@ -2,8 +2,10 @@ package gameet.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -48,9 +50,10 @@ public class SistemaRecomendacionController {
 			List<Usuario>listausuarios = sistemaRecomendacionServ.recomendarUsuarios(usuarioBase);
 		    List<SistemaRecomendacionRequest> res = new ArrayList<>();
 		    
+		    
 		    for(Usuario u : listausuarios) {
 		    	Map<String,List<String>> mapaJuegoConsolas = new HashMap<>(); 
-		    	List<String> consolas = new ArrayList<>();
+		    	Set<String> consolasSinDuplicados = new HashSet<>();
 		    	
 		    	for(String j : u.getJuegos()) {
 			    	JuegosUsuario juegoUsuarioCompleto = juegosServ.getJuegoUsuarioById(j);
@@ -59,10 +62,12 @@ public class SistemaRecomendacionController {
 			    	if(mapaJuegoConsolas.containsKey(juegoCompleto.getTitulo())) {
 			    		List<String> aux= mapaJuegoConsolas.get(juegoCompleto.getTitulo());
 			    		aux.add(juegoUsuarioCompleto.getConsola());
+			    		List<String> consolas = new ArrayList<>(consolasSinDuplicados);
 				    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(),consolas);	
 				    	
 			    	}else {
-			    		consolas.add(juegoUsuarioCompleto.getConsola());
+			    		consolasSinDuplicados.add(juegoUsuarioCompleto.getConsola());
+			    		List<String> consolas = new ArrayList<>(consolasSinDuplicados);
 				    	mapaJuegoConsolas.put(juegoCompleto.getTitulo(),consolas);
 
 			    	}
@@ -80,7 +85,7 @@ public class SistemaRecomendacionController {
     }
     
     @PostMapping("/api/usuariosCompatibles/interaccion")
-    public void interaccionUsuario(@RequestBody UsuarioRequest aux, HttpServletRequest request){
+    public boolean interaccionUsuario(@RequestBody UsuarioRequest aux, HttpServletRequest request){
     	
     	String usernameCarrusel = aux.getUsername();
     	String username = (String) request.getAttribute("username");
@@ -93,7 +98,7 @@ public class SistemaRecomendacionController {
 		        enlaceServ.interaccionUsuario(username, usernameCarrusel, true);
 		        Boolean esMatch =  enlaceServ.getEnlaceByusuarioEntradaAndUsuarioSalida(usernameCarrusel, username); // buscamos si a la inversa tambien existe el like
 		        if(esMatch) {
-					System.err.println("ES MATCH PERO FALTA EL CHAT");
+					return true;
 
 		        }
 	    	}else {
@@ -112,6 +117,7 @@ public class SistemaRecomendacionController {
     	} catch (Exception e) {
 			e.printStackTrace();
 		} 
+    	return false;
     }
     
 
