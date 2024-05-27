@@ -18,6 +18,7 @@ import com.google.firebase.cloud.FirestoreClient;
 
 import gameet.entity.Juego;
 import gameet.entity.JuegosUsuario;
+import gameet.entity.Usuario;
 
 @Service
 public class JuegoService {
@@ -178,4 +179,12 @@ public class JuegoService {
 
 		return juegos;
 	}
+	
+    public void guardarJuegoUsuario(JuegosUsuario juegosUsuario) {
+        Firestore dbFirestore = FirestoreClient.getFirestore();
+        DocumentReference docRef = dbFirestore.collection("juegosUsuario").document(juegosUsuario.getId().toString());
+        docRef.set(juegosUsuario);
+        docRef.create(juegosUsuario);
+        
+    }
 }

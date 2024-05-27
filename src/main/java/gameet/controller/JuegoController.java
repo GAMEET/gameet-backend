@@ -34,25 +34,48 @@ public class JuegoController {
 
 	@Autowired
 	private JuegoService juegosServ;
-
+	
 	// Metodo para asignar juegos a un usuario
 	@PostMapping("/api/seleccionJuego")
-	public void seleccionJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request) {
+	public void seleccionJuego2(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request) {
 
-		String username = (String) request.getAttribute("username");
+	    String username = (String) request.getAttribute("username");
 
-		try {
-			Usuario usuario = usuarioServ.getUsuarioByUsername(username);
-			String juegosusuarios = crearJuegoUsuario(usuario.getUsername(), juegos);
-			List<String> listaJuegos = usuario.getJuegos();
-			listaJuegos.add(juegosusuarios);
-			usuario.setJuegos(listaJuegos);
-			usuarioServ.guardarUsuario(usuario);
+	    try {
+	        Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+	        List<String> listaJuegosUsuariosAux = usuario.getJuegos();
+	        Boolean esUnico = true;
+	        
+	        if(!listaJuegosUsuariosAux.isEmpty() && listaJuegosUsuariosAux != null ) {
+		        List<JuegosUsuario> listaJuegosUsuarios = juegosServ.getJuegosUsuarioByIds(listaJuegosUsuariosAux);
+		        
+		        for (JuegosUsuario ju : listaJuegosUsuarios) {
+		            String juegoUsuario = ju.getJuego();
+		            String consolaUsuario = ju.getConsola();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		            if (juegoUsuario.equals(juegos.getJuego()) && consolaUsuario.equals(juegos.getConsola())) {
+		                ju.setNivel(juegos.getNivel());
+		                juegosServ.guardarJuegoUsuario(ju);
+		                esUnico=false;
+		                break;
+		            }
+		        }
+	        }
+	        
+	        if (esUnico) {
+
+				String juegosusuarios = crearJuegoUsuario(usuario.getUsername(), juegos);
+				List<String> listaJuegos = usuario.getJuegos();
+				listaJuegos.add(juegosusuarios);
+				usuario.setJuegos(listaJuegos);
+				usuarioServ.guardarUsuario(usuario);
+	        }
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
+
 
 	// Metodo para eliminar la asignacion de un juega en un usuario
 	@PostMapping("/api/eliminarJuego")
