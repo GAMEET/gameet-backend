@@ -1,6 +1,8 @@
 package gameet.entity;
 
-import java.sql.Timestamp;
+import java.util.Date;
+
+import com.google.firebase.database.PropertyName;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -9,7 +11,9 @@ import jakarta.persistence.Table;
 @Table(name = "enlace")
 public class Enlace {
 
-	private Timestamp fechaEnlace;
+	@PropertyName("fechaEnlace")
+	private Date fechaEnlace;
+	@PropertyName("like")
 	private boolean like;
 	private String usuarioEntrada;
 	private String usuarioSalida;
@@ -17,7 +21,15 @@ public class Enlace {
 	public Enlace() {
 		super();
 	}
-	public Enlace(Timestamp  fechaEnlace, boolean like, String usuarioEntrada, String usuarioSalida) {
+	public Enlace(Date  fechaEnlace, boolean like, String usuarioEntrada, String usuarioSalida) {
+		super();
+		this.fechaEnlace = fechaEnlace;
+		this.like = like;
+		this.usuarioEntrada = usuarioEntrada;
+		this.usuarioSalida = usuarioSalida;
+	}
+	
+	public Enlace(boolean like, Date fechaEnlace, String usuarioSalida, String usuarioEntrada) {
 		super();
 		this.fechaEnlace = fechaEnlace;
 		this.like = like;
@@ -30,16 +42,19 @@ public class Enlace {
 		return "Enlace [fechaEnlace=" + fechaEnlace + ", like=" + like + ", usuarioEntrada=" + usuarioEntrada
 				+ ", usuarioSalida=" + usuarioSalida + "]";
 	}
-	
-	public Timestamp  getFechaEnlace() {
+	@PropertyName("fechaEnlace")
+	public Date  getFechaEnlace() {
 		return fechaEnlace;
 	}
-	public void setFechaEnlace(Timestamp   fechaEnlace) {
+	@PropertyName("fechaEnlace")
+	public void setFechaEnlace(Date   fechaEnlace) {
 		this.fechaEnlace = fechaEnlace;
 	}
+	@PropertyName("like")
 	public boolean isLike() {
 		return like;
 	}
+	@PropertyName("like")
 	public void setLike(boolean like) {
 		this.like = like;
 	}

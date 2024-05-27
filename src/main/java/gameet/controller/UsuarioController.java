@@ -1,7 +1,10 @@
 package gameet.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,14 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import gameet.entity.Juego;
+import gameet.entity.JuegosUsuario;
 import gameet.entity.Usuario;
+import gameet.entity.UsuarioJuegoRequest;
 import gameet.entity.UsuarioPerfilRequest;
+import gameet.service.JuegoService;
 import gameet.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -26,6 +32,9 @@ public class UsuarioController {
 
 	@Autowired
 	UsuarioService usuarioService;
+	
+	@Autowired
+	JuegoService juegosServ;
 
 	public UsuarioController(UsuarioService usuarioService) {
 		this.usuarioService = usuarioService;
@@ -101,10 +110,20 @@ public class UsuarioController {
 	}
 
 	@GetMapping("/api/perfil")
-	public Usuario perfilUsuario(HttpServletRequest request) {
-		String username = (String) request.getAttribute("username");
-		Usuario usuarioBase = usuarioService.getUsuarioByUsername(username);
-		return usuarioBase;
+	public UsuarioJuegoRequest perfilUsuario(HttpServletRequest request) {
+	    String username = (String) request.getAttribute("username");
+	    Usuario usuarioBase = usuarioService.getUsuarioByUsername(username);
+	    
+	    List<JuegosUsuario> listaAux = juegosServ.getJuegosUsuarioByIds(usuarioBase.getJuegos());
+	    List<String> listaIdJuegos = listaAux.stream().map(x -> x.getJuego()).collect(Collectors.toList());
+	    
+	    List<Juego> listaJuegos = juegosServ.getJuegosByIds(listaIdJuegos);
+	    Set<String> setTituloJuegos = listaJuegos.stream().map(x -> x.getTitulo()).collect(Collectors.toSet());
+	    
+	    List<String> listaTituloJuegos = new ArrayList<>(setTituloJuegos);
+	    
+	    UsuarioJuegoRequest res = new UsuarioJuegoRequest(usuarioBase, listaTituloJuegos);
+	    return res;
 	}
 
 	@PostMapping("/api/perfil/editar")

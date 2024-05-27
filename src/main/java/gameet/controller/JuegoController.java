@@ -29,129 +29,134 @@ import jakarta.servlet.http.HttpServletRequest;
 @CrossOrigin(origins = "http://localhost:4200")
 public class JuegoController {
 
-	  @Autowired
-	  private UsuarioService usuarioServ;
-	  
-	  @Autowired
-	  private JuegoService juegosServ;
+	@Autowired
+	private UsuarioService usuarioServ;
 
-	  //Metodo para asignar juegos a un usuario
-	  @PostMapping("/api/seleccionJuego")
-	    public void seleccionJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request){
-	    	String username = (String) request.getAttribute("username");
+	@Autowired
+	private JuegoService juegosServ;
 
-	    	try {
-		    	Usuario usuario = usuarioServ.getUsuarioByUsername(username);
-		    	String juegosusuarios = crearJuegoUsuario(usuario.getUsername(), juegos);
-		    	List <String> listaJuegos =usuario.getJuegos();
-		    	listaJuegos.add(juegosusuarios);
-		    	usuario.setJuegos(listaJuegos);
-		    	usuarioServ.guardarUsuario(usuario);
-		    	
-	    	} catch (Exception e) {
-				e.printStackTrace();
-			} 
-	    }
-	  
-	  //Metodo para eliminar la asignacion de un juega en un usuario
-	  @PostMapping("/api/eliminarJuego")
-	    public void eliminarJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request){
-	    	String username = (String) request.getAttribute("username");
+	// Metodo para asignar juegos a un usuario
+	@PostMapping("/api/seleccionJuego")
+	public void seleccionJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request) {
 
-	    	try {
-		    	Usuario usuario = usuarioServ.getUsuarioByUsername(username);
-		    	List <String> listaJuegos =usuario.getJuegos();
-				JuegosUsuario juego1 = juegosServ.getJuegoUsuarioByTituloandUsusarioandConsola(juegos.getJuego(), username,juegos.getConsola());
-		    	listaJuegos.remove(juego1.getId());
-		    	usuario.setJuegos(listaJuegos);
-		    	usuarioServ.guardarUsuario(usuario);
-		    	eliminarJuegoUsuario(juego1.getId());
-		    	
-	    	} catch (Exception e) {
-				e.printStackTrace();
-			} 
-	    }
-	  
-	  //Metodo para obtener una lista de juegos enviando el usuario autenticado en el token
-	  @GetMapping("/api/juegosUsuario")
-	  public List<JuegoRequest> juegosUsuario(HttpServletRequest request) {
-	      String username = (String) request.getAttribute("username");
-	      List<JuegoRequest> res = new ArrayList<>();
-	      try {
-	          Usuario usuario = usuarioServ.getUsuarioByUsername(username);
-	          List<JuegosUsuario> juegosusuario = juegosServ.obtenerJuegosUsuarios(usuario.getJuegos());
-	          Map<String, JuegoRequest> juegosMap = new HashMap<>();
+		String username = (String) request.getAttribute("username");
 
-	          for (JuegosUsuario ju : juegosusuario) {
-	              String juegoId = ju.getJuego().trim();
-	              Juego juego1 = juegosServ.getJuegoById(juegoId);
+		try {
+			Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+			String juegosusuarios = crearJuegoUsuario(usuario.getUsername(), juegos);
+			List<String> listaJuegos = usuario.getJuegos();
+			listaJuegos.add(juegosusuarios);
+			usuario.setJuegos(listaJuegos);
+			usuarioServ.guardarUsuario(usuario);
 
-	              if (juegosMap.containsKey(juegoId)) {
-	                  JuegoRequest jr = juegosMap.get(juegoId);
-	                  Integer nivelesAux= jr.getConsolaNivel().get(ju.getConsola());
-	                  
-	                  if(nivelesAux == null) {
-	                	  jr.getConsolaNivel().put(ju.getConsola(), ju.getNivel());
-	                  }
-	                  	                  
-	              } else {
-	                  Map<String, Integer> consolaNivel = new HashMap<>();
-	                  consolaNivel.put(ju.getConsola(), ju.getNivel());
-	                  JuegoRequest jr = new JuegoRequest(juego1,consolaNivel);
-	                  juegosMap.put(juegoId, jr);
-	              }
-	          }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	          res.addAll(juegosMap.values());
-	          return res;
-	      } catch (Exception e) {
-	          e.printStackTrace();
-	          return null;
-	      }
-	  }
+	// Metodo para eliminar la asignacion de un juega en un usuario
+	@PostMapping("/api/eliminarJuego")
+	public void eliminarJuego(@RequestBody JuegosUsuarioRequest juegos, HttpServletRequest request) {
 
+		String username = (String) request.getAttribute("username");
 
+		try {
+			Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+			List<String> listaJuegos = usuario.getJuegos();
+			JuegosUsuario juego1 = juegosServ.getJuegoUsuarioByTituloandUsusarioandConsola(juegos.getJuego(), username,
+					juegos.getConsola());
+			listaJuegos.remove(juego1.getId());
+			usuario.setJuegos(listaJuegos);
+			usuarioServ.guardarUsuario(usuario);
+			eliminarJuegoUsuario(juego1.getId());
 
-	    
-	    public String  crearJuegoUsuario(String usuario, JuegosUsuarioRequest juegos) {
-	        Firestore dbFirestore = FirestoreClient.getFirestore();
-	        JuegosUsuario ju = new JuegosUsuario();
-	        ju.setConsola(juegos.getConsola());
-	        ju.setNivel(juegos.getNivel());
-	        ju.setUsuario(usuario);
-	        ju.setJuego(juegos.getJuego());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	        DocumentReference docRef = dbFirestore.collection("juegosUsuario").document();
+	// Metodo para obtener una lista de juegos enviando el usuario autenticado en el
+	// token
+	@GetMapping("/api/juegosUsuario")
+	public List<JuegoRequest> juegosUsuario(HttpServletRequest request) {
 
-	        try {
-	            docRef.set(ju);
-	            return docRef.getId();
-	        } catch (Exception e) {
-	            System.err.println("Error: " + e.getMessage());
-	            return null;
-	        }
-	    }
-	    
-	    public void eliminarJuegoUsuario(String documentId) {
-	        Firestore dbFirestore = FirestoreClient.getFirestore();
+		String username = (String) request.getAttribute("username");
+		List<JuegoRequest> res = new ArrayList<>();
+		try {
+			Usuario usuario = usuarioServ.getUsuarioByUsername(username);
+			List<JuegosUsuario> juegosusuario = juegosServ.obtenerJuegosUsuarios(usuario.getJuegos());
+			Map<String, JuegoRequest> juegosMap = new HashMap<>();
 
-	        try {
-	            dbFirestore.collection("juegosUsuario").document(documentId).delete().get();
-	        } catch (Exception e) {
-	            System.err.println("Error: " + e.getMessage());
-	        }
-	    }
-	    
-		  //Metodo para asignar juegos a un usuario
-		  @GetMapping("/api/juegos")
-		    public List<Juego> listadoJuego(HttpServletRequest request){
-		    	try {
-		    		return juegosServ.getAllJuegos();
-			    	
-		    	} catch (Exception e) {
-					e.printStackTrace();
+			for (JuegosUsuario ju : juegosusuario) {
+				String juegoId = ju.getJuego().trim();
+				Juego juego1 = juegosServ.getJuegoById(juegoId);
+
+				if (juegosMap.containsKey(juegoId)) {
+					JuegoRequest jr = juegosMap.get(juegoId);
+					Integer nivelesAux = jr.getConsolaNivel().get(ju.getConsola());
+
+					if (nivelesAux == null) {
+						jr.getConsolaNivel().put(ju.getConsola(), ju.getNivel());
+					}
+
+				} else {
+					Map<String, Integer> consolaNivel = new HashMap<>();
+					consolaNivel.put(ju.getConsola(), ju.getNivel());
+					JuegoRequest jr = new JuegoRequest(juego1, consolaNivel);
+					juegosMap.put(juegoId, jr);
 				}
-				return null; 
-		    }
-	
+			}
+
+			res.addAll(juegosMap.values());
+			return res;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public String crearJuegoUsuario(String usuario, JuegosUsuarioRequest juegos) {
+
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+		JuegosUsuario ju = new JuegosUsuario();
+		ju.setConsola(juegos.getConsola());
+		ju.setNivel(juegos.getNivel());
+		ju.setUsuario(usuario);
+		ju.setJuego(juegos.getJuego());
+
+		DocumentReference docRef = dbFirestore.collection("juegosUsuario").document();
+
+		try {
+			docRef.set(ju);
+			return docRef.getId();
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+			return null;
+		}
+	}
+
+	public void eliminarJuegoUsuario(String documentId) {
+
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+
+		try {
+			dbFirestore.collection("juegosUsuario").document(documentId).delete().get();
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+
+	// Metodo para asignar juegos a un usuario
+	@GetMapping("/api/juegos")
+	public List<Juego> listadoJuego(HttpServletRequest request) {
+
+		try {
+			return juegosServ.getAllJuegos();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

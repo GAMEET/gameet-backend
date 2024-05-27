@@ -80,8 +80,8 @@ public class SistemaRecomendacionController {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-             throw new IllegalArgumentException("Usuario no encontrado");
-		} 
+		}
+		return null; 
     }
     
     @PostMapping("/api/usuariosCompatibles/interaccion")

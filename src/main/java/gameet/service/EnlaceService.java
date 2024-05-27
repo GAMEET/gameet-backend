@@ -104,7 +104,7 @@ public class EnlaceService {
 				Enlace enlace = document.toObject(Enlace.class);
 				enlacesRecibidos.add(enlace);
 			}
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		if(!enlacesRecibidos.isEmpty()) {

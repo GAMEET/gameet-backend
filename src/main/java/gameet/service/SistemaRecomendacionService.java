@@ -1,6 +1,9 @@
 package gameet.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,6 @@ import gameet.entity.Usuario;
 
 @Service
 public class SistemaRecomendacionService {
-
-	private List<Usuario> usuarios;
 	
 	@Autowired
 	private UsuarioService usuarioServ;
@@ -22,47 +23,35 @@ public class SistemaRecomendacionService {
 	
 	@Autowired
 	private EnlaceService enlaceServ;
-	
-	public SistemaRecomendacionService(List<Usuario> usuarios) {
-		this.usuarios = usuarios;
-	}
 
     //Metodo principal para recomendar usuarios al usuario autenticado
 	public List<Usuario> recomendarUsuarios(Usuario usuarioOrigen) {
-		usuarios= usuarioServ.getAllUsersActivosExcept(usuarioOrigen.getUsername());
-		
-	    // Paso 1: Eliminamos usuarios inactivos y al usuario autenticado
-	    List<Usuario> paso1 = usuarios.stream()
-	            .filter(u -> u.isActivo() && !u.getUsername().equals(usuarioOrigen.getUsername()))
-	            .collect(Collectors.toList());
-	    
-	    // Paso 2: Eliminamos usuarios ya rechazados anteriormente
-	    List<Usuario> paso2 = paso1.stream()
-	            .filter(u -> !usuarioOrigen.getRechazados().contains(u.getUsername()))
-	            .collect(Collectors.toList());
-	    
-	    // Paso 3: Eliminamos usuarios que no tengan juegos en comun ni consolas
-	    List<Usuario> paso3 = paso2.stream()
-	            .filter(u -> tienenJuegoComun(usuarioOrigen, u))
-	            .collect(Collectors.toList());
-	    
-	    // Paso 4: Ordenamos los usuarios por puntuación descendentemente
-	    List<Usuario> paso4 = paso3.stream()
-	            .sorted((u1, u2) -> {
-	                double score1 = calcularPuntuacion(usuarioOrigen, u1);
-	                double score2 = calcularPuntuacion(usuarioOrigen, u2);
-	                return Double.compare(score2, score1);
-	            })
-	            .collect(Collectors.toList());
-	    
-	    // Paso 5: Verificar que no exista un enlace entre los usuarios de la lista de recomendados y el UsuarioOrigen
-	    List<Usuario> paso5 = paso4.stream()
-	            .filter(u -> !existeEnlaceEntre(usuarioOrigen, u))
-	            .collect(Collectors.toList());
-	    
+		Set<String> rechazados = new HashSet<>(usuarioOrigen.getRechazados());
+		String origenUsername = usuarioOrigen.getUsername();
 
-	    return paso5;
+		return usuarioServ
+
+				// Paso 1: Eliminamos usuarios inactivos y al usuario autenticado
+				.getAllUsersActivosExcept(origenUsername).stream()
+
+				// Paso 2: Eliminamos usuarios ya rechazados anteriormente
+				.filter(u -> u.isActivo() && !rechazados.contains(u.getUsername())
+						&& !u.getUsername().equals(origenUsername))
+				
+				// Paso 3: Eliminamos usuarios que no tengan juegos en comun ni consolas
+				.filter(u -> tienenJuegoComun(usuarioOrigen, u))
+				
+				// Paso 5: Verificar que no exista un enlace entre los usuarios de la lista de
+				// recomendados y el UsuarioOrigen
+				.filter(u -> !existeEnlaceEntre(usuarioOrigen, u))
+				
+				// Paso 4: Ordenamos los usuarios por puntuación descendentemente
+				.sorted((u1, u2) -> Double.compare(calcularPuntuacion(usuarioOrigen, u2),
+						calcularPuntuacion(usuarioOrigen, u1)))
+				
+				.collect(Collectors.toList());
 	}
+
 
 
     //Metodo para comprobar si dos usuarios tienen al menos un juego y consola en común
@@ -87,39 +76,44 @@ public class SistemaRecomendacionService {
     
     //Metodo para calcular la similitud (puntuacion) entre dos usuarios
 	private double calcularPuntuacion(Usuario usuarioAutenticado, Usuario usuarioComparado) {
-		
-    	List<JuegosUsuario> juegosusuarioAutenticado = juegosServ.obtenerJuegosUsuarios(usuarioAutenticado.getJuegos());
-    	List<JuegosUsuario> juegosusuarioComparado = juegosServ.obtenerJuegosUsuarios(usuarioComparado.getJuegos());
-		
-		double puntuacion = 0;
+    List<JuegosUsuario> juegosusuarioAutenticado = juegosServ.obtenerJuegosUsuarios(usuarioAutenticado.getJuegos());
+    List<JuegosUsuario> juegosusuarioComparado = juegosServ.obtenerJuegosUsuarios(usuarioComparado.getJuegos());
 
-		// Características comunes
-		long caracteristicasComunes = usuarioAutenticado.getCaracteristicas().stream().filter(usuarioComparado.getCaracteristicas()::contains)
-				.count();
-		puntuacion += caracteristicasComunes;
+    double puntuacion = 0;
 
-		// Horario comun
-		if (usuarioAutenticado.getHorarioJuego().equals(usuarioComparado.getHorarioJuego())) {
-			puntuacion += 1 * 0.9;
-		}
+    // Características comunes
+    Set<String> caracteristicasAutenticado = new HashSet<>(usuarioAutenticado.getCaracteristicas());
+    Set<String> caracteristicasComparado = new HashSet<>(usuarioComparado.getCaracteristicas());
+    caracteristicasAutenticado.retainAll(caracteristicasComparado);
+    puntuacion += caracteristicasAutenticado.size();
 
-		// Consolas comunes
-		long consolasComunes = juegosusuarioAutenticado.stream()
-				.filter(ju -> juegosusuarioComparado.stream().anyMatch(j -> j.getConsola().equals(ju.getConsola())))
-				.count();
-		puntuacion += consolasComunes * 0.2;
+    // Horario común
+    if (usuarioAutenticado.getHorarioJuego().equals(usuarioComparado.getHorarioJuego())) {
+        puntuacion += 1 * 0.9;
+    }
 
-		// Juegos comunes y diferencia de niveles
-		for (JuegosUsuario ju1: juegosusuarioAutenticado) {
-			for (JuegosUsuario ju2 : juegosusuarioComparado) {
-				if (ju1.getJuego().equals(ju2.getJuego()) && ju1.getConsola().equals(ju2.getConsola())) {
-					int diferenciaNivel = Math.abs(ju1.getNivel() - ju2.getNivel());
-					puntuacion += (5 - diferenciaNivel) * 0.8; // A menor diferencia de nivel, mayor puntuación
-				}
-			}
-		}
+    // Crear un mapa de consola a juegos para cada usuario
+    Map<String, JuegosUsuario> consolaJuegoMapAutenticado = juegosusuarioAutenticado.stream()
+            .collect(Collectors.toMap(JuegosUsuario::getConsola, ju -> ju));
+    Map<String, JuegosUsuario> consolaJuegoMapComparado = juegosusuarioComparado.stream()
+            .collect(Collectors.toMap(JuegosUsuario::getConsola, ju -> ju));
 
-		return puntuacion;
-	}
+    // Consolas comunes
+    Set<String> consolasComunes = new HashSet<>(consolaJuegoMapAutenticado.keySet());
+    consolasComunes.retainAll(consolaJuegoMapComparado.keySet());
+    puntuacion += consolasComunes.size() * 0.2;
+
+    // Juegos comunes y diferencia de niveles
+    for (String consola : consolasComunes) {
+        JuegosUsuario ju1 = consolaJuegoMapAutenticado.get(consola);
+        JuegosUsuario ju2 = consolaJuegoMapComparado.get(consola);
+        if (ju1.getJuego().equals(ju2.getJuego())) {
+            int diferenciaNivel = Math.abs(ju1.getNivel() - ju2.getNivel());
+            puntuacion += (5 - diferenciaNivel) * 0.8; // A menor diferencia de nivel, mayor puntuación
+        }
+    }
+
+    return puntuacion;
+}
 
 }
