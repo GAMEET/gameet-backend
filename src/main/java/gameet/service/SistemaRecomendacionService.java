@@ -76,44 +76,39 @@ public class SistemaRecomendacionService {
     
     //Metodo para calcular la similitud (puntuacion) entre dos usuarios
 	private double calcularPuntuacion(Usuario usuarioAutenticado, Usuario usuarioComparado) {
-    List<JuegosUsuario> juegosusuarioAutenticado = juegosServ.obtenerJuegosUsuarios(usuarioAutenticado.getJuegos());
-    List<JuegosUsuario> juegosusuarioComparado = juegosServ.obtenerJuegosUsuarios(usuarioComparado.getJuegos());
 
-    double puntuacion = 0;
+    	List<JuegosUsuario> juegosusuarioAutenticado = juegosServ.obtenerJuegosUsuarios(usuarioAutenticado.getJuegos());
+    	List<JuegosUsuario> juegosusuarioComparado = juegosServ.obtenerJuegosUsuarios(usuarioComparado.getJuegos());
 
-    // Características comunes
-    Set<String> caracteristicasAutenticado = new HashSet<>(usuarioAutenticado.getCaracteristicas());
-    Set<String> caracteristicasComparado = new HashSet<>(usuarioComparado.getCaracteristicas());
-    caracteristicasAutenticado.retainAll(caracteristicasComparado);
-    puntuacion += caracteristicasAutenticado.size();
+		double puntuacion = 0;
 
-    // Horario común
-    if (usuarioAutenticado.getHorarioJuego().equals(usuarioComparado.getHorarioJuego())) {
-        puntuacion += 1 * 0.9;
-    }
+		// Características comunes
+		long caracteristicasComunes = usuarioAutenticado.getCaracteristicas().stream().filter(usuarioComparado.getCaracteristicas()::contains)
+				.count();
+		puntuacion += caracteristicasComunes;
 
-    // Crear un mapa de consola a juegos para cada usuario
-    Map<String, JuegosUsuario> consolaJuegoMapAutenticado = juegosusuarioAutenticado.stream()
-            .collect(Collectors.toMap(JuegosUsuario::getConsola, ju -> ju));
-    Map<String, JuegosUsuario> consolaJuegoMapComparado = juegosusuarioComparado.stream()
-            .collect(Collectors.toMap(JuegosUsuario::getConsola, ju -> ju));
+		// Horario comun
+		if (usuarioAutenticado.getHorarioJuego().equals(usuarioComparado.getHorarioJuego())) {
+			puntuacion += 1 * 0.9;
+		}
 
-    // Consolas comunes
-    Set<String> consolasComunes = new HashSet<>(consolaJuegoMapAutenticado.keySet());
-    consolasComunes.retainAll(consolaJuegoMapComparado.keySet());
-    puntuacion += consolasComunes.size() * 0.2;
+		// Consolas comunes
+		long consolasComunes = juegosusuarioAutenticado.stream()
+				.filter(ju -> juegosusuarioComparado.stream().anyMatch(j -> j.getConsola().equals(ju.getConsola())))
+				.count();
+		puntuacion += consolasComunes * 0.2;
 
-    // Juegos comunes y diferencia de niveles
-    for (String consola : consolasComunes) {
-        JuegosUsuario ju1 = consolaJuegoMapAutenticado.get(consola);
-        JuegosUsuario ju2 = consolaJuegoMapComparado.get(consola);
-        if (ju1.getJuego().equals(ju2.getJuego())) {
-            int diferenciaNivel = Math.abs(ju1.getNivel() - ju2.getNivel());
-            puntuacion += (5 - diferenciaNivel) * 0.8; // A menor diferencia de nivel, mayor puntuación
-        }
-    }
+		// Juegos comunes y diferencia de niveles
+		for (JuegosUsuario ju1: juegosusuarioAutenticado) {
+			for (JuegosUsuario ju2 : juegosusuarioComparado) {
+				if (ju1.getJuego().equals(ju2.getJuego()) && ju1.getConsola().equals(ju2.getConsola())) {
+					int diferenciaNivel = Math.abs(ju1.getNivel() - ju2.getNivel());
+					puntuacion += (5 - diferenciaNivel) * 0.8; // A menor diferencia de nivel, mayor puntuación
+				}
+			}
+		}
 
-    return puntuacion;
-}
+		return puntuacion;
+	}
 
 }
