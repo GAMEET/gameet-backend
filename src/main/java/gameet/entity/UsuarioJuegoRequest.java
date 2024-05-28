@@ -20,7 +20,7 @@ public class UsuarioJuegoRequest {
 	public UsuarioJuegoRequest(Usuario usuario, List<String> tituloJuegos) {
 		super();
 		this.descripcion = usuario.getDescripcion();
-		this.email = usuario.getDescripcion();
+		this.email = usuario.getEmail();
 		this.imagenPerfil = usuario.getImagenPerfil();
 		this.password = usuario.getPassword();
 		this.telefono = usuario.getTelefono();
