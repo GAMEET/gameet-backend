@@ -12,12 +12,14 @@ import jakarta.servlet.http.HttpServletRequest;
 @CrossOrigin(origins = "http://localhost:4200")
 public class ChatController {
 
-	@Autowired
-	private StreamChatService chatSrv;
-	
-	@GetMapping("/api/generaTokenChat")
-	public String eliminarJuego(HttpServletRequest request) {
-		String username = (String) request.getAttribute("username");
-		return chatSrv.generaToken(username);
-	}
+    @Autowired
+    private StreamChatService chatSrv;
+
+    @GetMapping("/api/generaTokenChat")
+    public String generarTokenChat(HttpServletRequest request) {
+        String apiKeySecret = "kkhwsa8ss3ke";
+        String username = (String) request.getAttribute("username");
+        return chatSrv.generaToken(username);
+    }
+ 
 }
